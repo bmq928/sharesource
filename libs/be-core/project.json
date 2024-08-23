@@ -1,0 +1,9 @@
+{
+  "name": "be-core",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/be-core/src",
+  "projectType": "library",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project be-core --web",
+  "targets": {}
+}
