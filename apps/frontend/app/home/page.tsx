@@ -1,20 +1,45 @@
 'use client'
 
+import AddIcon from '@mui/icons-material/Add'
 import CancelIcon from '@mui/icons-material/Cancel'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import SaveIcon from '@mui/icons-material/Save'
+import Button from '@mui/material/Button'
 import {
   DataGrid,
   GridActionsCellItem,
   GridColDef,
   GridRowModes,
   GridRowModesModel,
+  GridSlots,
+  GridToolbarContainer,
 } from '@mui/x-data-grid'
 import { useState } from 'react'
 
+type ToolbarProps = {
+  setRowModesModel: (
+    newModel: (oldModel: GridRowModesModel) => GridRowModesModel
+  ) => void
+}
+function Toolbar({ setRowModesModel }: ToolbarProps) {
+  const id = Math.random()
+  const handleClick = () => {
+    setRowModesModel((prev) => ({
+      ...prev,
+      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
+    }))
+  }
+  return (
+    <GridToolbarContainer>
+      <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
+        Add record
+      </Button>
+    </GridToolbarContainer>
+  )
+}
 export default function Page() {
-  const [rows] = useState([{ id: 1, name: '1', description: '1' }])
+  const [rows, setRows] = useState([{ id: 1, name: '1', description: '1' }])
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
 
   const columns: GridColDef[] = [
@@ -99,6 +124,12 @@ export default function Page() {
       rowModesModel={rowModesModel}
       editMode="row"
       onRowModesModelChange={setRowModesModel}
+      slots={{
+        toolbar: Toolbar as GridSlots['toolbar'],
+      }}
+      slotProps={{
+        toolbar: { setRowModesModel },
+      }}
     />
   )
 }
