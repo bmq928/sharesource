@@ -5,36 +5,45 @@ import type {
   UserAuthTokenResponse,
   UserResponse,
 } from '@libs/be-core'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query'
+// must be this path
+// @reduxjs/toolkit or @reduxjs/toolkit/query not working
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { transformErrorResponse } from './utils'
 
 export const usersApi = createApi({
   reducerPath: 'usersApi',
+  tagTypes: ['me'],
   baseQuery: fetchBaseQuery({
-    baseUrl: process.env['API_PATH'],
+    baseUrl: process.env['NEXT_PUBLIC_API_PATH'],
     credentials: 'same-origin',
   }),
   endpoints: (builder) => ({
-    getMe: builder.query<UserResponse, void>({
+    getMe: builder.query<void, UserResponse>({
       query: () => ({
-        url: '/users/me',
+        url: '/v1/users/me',
         method: 'GET',
       }),
+      transformErrorResponse,
     }),
 
-    login: builder.mutation<LoginDto, UserAuthTokenResponse>({
+    login: builder.mutation<UserAuthTokenResponse, LoginDto>({
       query: (body) => ({
-        url: '/users/login',
+        url: '/v1/users/login',
         method: 'POST',
         body,
       }),
+      transformErrorResponse,
     }),
 
-    register: builder.mutation<RegisterDto, UserAuthTokenResponse>({
+    register: builder.mutation<UserAuthTokenResponse, RegisterDto>({
       query: (body) => ({
-        url: '/users/register',
+        url: '/v1/users/register',
         method: 'POST',
         body,
       }),
+      transformErrorResponse,
     }),
   }),
 })
+
+export const { useGetMeQuery, useLoginMutation, useRegisterMutation } = usersApi
