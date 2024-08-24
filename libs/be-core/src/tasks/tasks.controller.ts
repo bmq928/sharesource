@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Post,
   Put,
@@ -65,15 +66,9 @@ export class TasksController {
       )
   }
 
+  @HttpCode(204)
   @Delete(':id')
-  del(
-    @Param() param: IdDto,
-    @AuthUserId() idUser: string
-  ): Promise<TaskResponse> {
-    return this.tasksService
-      .del(idUser, param)
-      .then((entity) =>
-        plainToInstance(TaskResponse, entity, { excludeExtraneousValues: true })
-      )
+  del(@Param() param: IdDto, @AuthUserId() idUser: string): Promise<void> {
+    return this.tasksService.del(idUser, param)
   }
 }

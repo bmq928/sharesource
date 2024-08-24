@@ -1,135 +1,146 @@
 'use client'
 
-import AddIcon from '@mui/icons-material/Add'
-import CancelIcon from '@mui/icons-material/Cancel'
-import DeleteIcon from '@mui/icons-material/Delete'
-import EditIcon from '@mui/icons-material/Edit'
-import SaveIcon from '@mui/icons-material/Save'
-import Button from '@mui/material/Button'
+import type { CreateTaskDto, UpdateTaskDto } from '@libs/be-core'
 import {
-  DataGrid,
-  GridActionsCellItem,
-  GridColDef,
-  GridRowModes,
-  GridRowModesModel,
-  GridSlots,
-  GridToolbarContainer,
-} from '@mui/x-data-grid'
-import { useState } from 'react'
+  useCreateTaskMutation,
+  useDeleteTaskMutation,
+  useListTasksQuery,
+  useUpdateTaskMutation,
+} from '@libs/fe-core'
+import Button from '@mui/material/Button'
+import Paper from '@mui/material/Paper'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import TextField from '@mui/material/TextField'
+import { useMemo, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 
-type ToolbarProps = {
-  setRowModesModel: (
-    newModel: (oldModel: GridRowModesModel) => GridRowModesModel
-  ) => void
-}
-function Toolbar({ setRowModesModel }: ToolbarProps) {
-  const id = Math.random()
-  const handleClick = () => {
-    setRowModesModel((prev) => ({
-      ...prev,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
-    }))
-  }
-  return (
-    <GridToolbarContainer>
-      <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
-        Add record
-      </Button>
-    </GridToolbarContainer>
-  )
-}
 export default function Page() {
-  const [rows, setRows] = useState([{ id: 1, name: '1', description: '1' }])
-  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({})
+  const { data } = useListTasksQuery({})
+  const [doCreateTask, { error: createTaskErr }] = useCreateTaskMutation()
+  const [doUpdateTask, { error: updateTaskErr }] = useUpdateTaskMutation()
+  const [doDeleteTask, { error: delTaskErr }] = useDeleteTaskMutation()
+  const [creating, setCreating] = useState(false)
+  const {
+    handleSubmit,
+    control,
+    formState: { errors: formErr },
+  } = useForm<CreateTaskDto | UpdateTaskDto>()
 
-  const columns: GridColDef[] = [
-    { field: 'name', headerName: 'Name', width: 180, editable: true },
-    {
-      field: 'description',
-      headerName: 'Description',
-      width: 500,
-      editable: true,
-    },
-    {
-      field: 'actions',
-      type: 'actions',
-      headerName: 'Actions',
-      width: 100,
-      cellClassName: 'actions',
-      getActions: ({ id }) => {
-        const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit
-
-        if (isInEditMode) {
-          return [
-            <GridActionsCellItem
-              key={`${id}-Save`}
-              icon={<SaveIcon />}
-              label="Save"
-              sx={{
-                color: 'primary.main',
-              }}
-              onClick={() =>
-                setRowModesModel((prev) => ({
-                  ...prev,
-                  [id]: { mode: GridRowModes.View },
-                }))
-              }
-            />,
-            <GridActionsCellItem
-              key={`${id}-Cancel`}
-              icon={<CancelIcon />}
-              label="Cancel"
-              className="textPrimary"
-              onClick={() =>
-                setRowModesModel((prev) => ({
-                  ...prev,
-                  [id]: { mode: GridRowModes.View, ignoreModifications: true },
-                }))
-              }
-              color="inherit"
-            />,
+  const rows = useMemo(
+    () =>
+      creating
+        ? [
+            ...(data?.data ?? []).map((row) => ({ ...row, editable: false })),
+            { id: '', name: '', description: '', status: '', editable: true },
           ]
-        }
-
-        return [
-          <GridActionsCellItem
-            key={`${id}-Edit`}
-            icon={<EditIcon />}
-            label="Edit"
-            className="textPrimary"
-            onClick={() =>
-              setRowModesModel((prev) => ({
-                ...prev,
-                [id]: { mode: GridRowModes.Edit },
-              }))
-            }
-            color="inherit"
-          />,
-          <GridActionsCellItem
-            key={`${id}-Delete`}
-            icon={<DeleteIcon />}
-            label="Delete"
-            onClick={() => console.log({ id })}
-            color="inherit"
-          />,
-        ]
-      },
-    },
-  ]
+        : (data?.data ?? []).map((row) => ({ ...row, editable: false })),
+    [creating, data]
+  )
 
   return (
-    <DataGrid
-      rows={rows}
-      columns={columns}
-      rowModesModel={rowModesModel}
-      editMode="row"
-      onRowModesModelChange={setRowModesModel}
-      slots={{
-        toolbar: Toolbar as GridSlots['toolbar'],
-      }}
-      slotProps={{
-        toolbar: { setRowModesModel },
-      }}
-    />
+    <>
+      <Button onClick={() => setCreating(true)}>New</Button>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Description</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Action</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {rows.map((row) => (
+              <TableRow
+                key={row.id}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  {row.editable ? (
+                    <Controller
+                      name="name"
+                      defaultValue=""
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          size="small"
+                          margin="normal"
+                          fullWidth
+                          autoComplete={row.name}
+                          autoFocus
+                          {...field}
+                        />
+                      )}
+                    />
+                  ) : (
+                    row.name
+                  )}
+                </TableCell>
+                <TableCell>
+                  {row.editable ? (
+                    <Controller
+                      name="description"
+                      defaultValue=""
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          size="small"
+                          margin="normal"
+                          fullWidth
+                          autoComplete={row.description}
+                          autoFocus
+                          {...field}
+                        />
+                      )}
+                    />
+                  ) : (
+                    row.description
+                  )}
+                </TableCell>
+                <TableCell>
+                  {row.editable ? (
+                    <Controller
+                      name="status"
+                      defaultValue={'pending' as any}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          size="small"
+                          margin="normal"
+                          fullWidth
+                          autoComplete={row.status}
+                          autoFocus
+                          {...field}
+                        />
+                      )}
+                    />
+                  ) : (
+                    row.status
+                  )}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    onClick={handleSubmit(
+                      (creating ? doCreateTask : doUpdateTask) as any
+                    )}
+                  >
+                    Save
+                  </Button>
+                  <Button onClick={() => doDeleteTask({ id: row.id })}>
+                    Delete
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </>
   )
 }

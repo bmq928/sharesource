@@ -12,7 +12,7 @@ import { transformErrorResponse } from './utils'
 
 export const usersApi = createApi({
   reducerPath: 'usersApi',
-  tagTypes: ['me'],
+  tagTypes: ['users', 'me'],
   baseQuery: fetchBaseQuery({
     baseUrl: process.env['NEXT_PUBLIC_API_PATH'],
     credentials: 'same-origin',
@@ -24,6 +24,7 @@ export const usersApi = createApi({
         method: 'GET',
       }),
       transformErrorResponse,
+      providesTags: ['me'],
     }),
 
     login: builder.mutation<UserAuthTokenResponse, LoginDto>({
@@ -33,6 +34,7 @@ export const usersApi = createApi({
         body,
       }),
       transformErrorResponse,
+      invalidatesTags: ['me'],
     }),
 
     register: builder.mutation<UserAuthTokenResponse, RegisterDto>({
@@ -42,6 +44,7 @@ export const usersApi = createApi({
         body,
       }),
       transformErrorResponse,
+      invalidatesTags: ['me'],
     }),
   }),
 })

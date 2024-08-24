@@ -65,14 +65,12 @@ export class TasksService {
     )
   }
 
-  async del(idUser: string, { id: idTask }: IdDto): Promise<TaskEntity> {
+  async del(idUser: string, { id: idTask }: IdDto): Promise<void> {
     const founded = await this.tasksRepo.findOneBy({
       id: idTask,
       createdBy: { id: idUser },
     })
-    if (!founded)
-      throw new NotFoundException(`task with id ${idTask} not found`)
-
-    return this.tasksRepo.remove(founded)
+    if (!founded) return
+    await this.tasksRepo.remove(founded)
   }
 }

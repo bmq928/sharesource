@@ -20,14 +20,17 @@ export const tasksApi = createApi({
     credentials: 'same-origin',
   }),
   endpoints: (builder) => ({
-    listTasks: builder.query<TaskPaginatedResponse, PaginatedQueryDto>({
-      query: (query) => ({
-        url: '/v1/tasks',
-        method: 'GET',
-        params: query,
-      }),
-      transformErrorResponse,
-    }),
+    listTasks: builder.query<TaskPaginatedResponse, Partial<PaginatedQueryDto>>(
+      {
+        query: (query) => ({
+          url: '/v1/tasks',
+          method: 'GET',
+          params: query,
+        }),
+        providesTags: ['tasks'],
+        transformErrorResponse,
+      }
+    ),
 
     createTask: builder.mutation<TaskResponse, CreateTaskDto>({
       query: (body) => ({
@@ -36,6 +39,7 @@ export const tasksApi = createApi({
         body,
       }),
       transformErrorResponse,
+      invalidatesTags: ['tasks'],
     }),
 
     updateTask: builder.mutation<TaskResponse, UpdateTaskDto & IdDto>({
@@ -45,6 +49,7 @@ export const tasksApi = createApi({
         body,
       }),
       transformErrorResponse,
+      invalidatesTags: ['tasks'],
     }),
 
     deleteTask: builder.mutation<unknown, IdDto>({
@@ -53,6 +58,7 @@ export const tasksApi = createApi({
         method: 'DELETE',
       }),
       transformErrorResponse,
+      invalidatesTags: ['tasks'],
     }),
   }),
 })
