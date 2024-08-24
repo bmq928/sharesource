@@ -15,7 +15,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@libs/be-core": ["libs/be-core/src/index.ts"]
+      "@libs/be-core": ["libs/be-core/src/index.ts"],
+      "@libs/fe-core": ["libs/fe-core/src/index.ts"],
+      "@libs/fe-core/server": ["libs/fe-core/src/server.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

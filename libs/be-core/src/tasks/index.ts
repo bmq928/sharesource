@@ -1,4 +1,6 @@
+export * from './dto'
 export * from './task.entity'
 export * from './tasks.controller'
 export * from './tasks.module'
+export * from './tasks.response'
 export * from './tasks.service'
