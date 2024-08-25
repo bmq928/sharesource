@@ -9,23 +9,27 @@ import type {
 // must be this path
 // @reduxjs/toolkit or @reduxjs/toolkit/query not working
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { tasksApi, TaskTagTypes } from './tasks'
 import { transformErrorResponse } from './utils'
 
+export enum UsersTagTypes {
+  Me = 'user.me',
+}
 export const usersApi = createApi({
   reducerPath: 'usersApi',
-  tagTypes: ['users', 'me'],
+  tagTypes: [UsersTagTypes.Me],
   baseQuery: fetchBaseQuery({
     baseUrl: process.env['NEXT_PUBLIC_API_PATH'],
     credentials: 'same-origin',
   }),
   endpoints: (builder) => ({
-    getMe: builder.query<void, UserResponse>({
+    getMe: builder.query<UserResponse, void>({
       query: () => ({
         url: '/v1/users/me',
         method: 'GET',
       }),
       transformErrorResponse,
-      providesTags: ['me'],
+      providesTags: [UsersTagTypes.Me],
     }),
 
     login: builder.mutation<UserAuthTokenResponse, LoginDto>({
@@ -35,7 +39,11 @@ export const usersApi = createApi({
         body,
       }),
       transformErrorResponse,
-      invalidatesTags: ['me'],
+      invalidatesTags: [UsersTagTypes.Me],
+      onQueryStarted: async (_, { dispatch, queryFulfilled }) => {
+        await queryFulfilled
+        dispatch(tasksApi.util.invalidateTags([TaskTagTypes.Task]))
+      },
     }),
 
     register: builder.mutation<UserAuthTokenResponse, RegisterDto>({
@@ -45,7 +53,11 @@ export const usersApi = createApi({
         body,
       }),
       transformErrorResponse,
-      invalidatesTags: ['me'],
+      invalidatesTags: [UsersTagTypes.Me],
+      onQueryStarted: async (_, { dispatch, queryFulfilled }) => {
+        await queryFulfilled
+        dispatch(tasksApi.util.invalidateTags([TaskTagTypes.Task]))
+      },
     }),
 
     logout: builder.mutation<void, void>({
@@ -54,7 +66,11 @@ export const usersApi = createApi({
         method: 'PUT',
       }),
       transformErrorResponse,
-      invalidatesTags: ['me'],
+      invalidatesTags: [UsersTagTypes.Me],
+      onQueryStarted: async (_, { dispatch, queryFulfilled }) => {
+        await queryFulfilled
+        dispatch(tasksApi.util.invalidateTags([TaskTagTypes.Task]))
+      },
     }),
   }),
 })

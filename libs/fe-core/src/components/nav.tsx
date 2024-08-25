@@ -6,8 +6,16 @@ import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
+import { useGetMeQuery, useLogoutMutation } from '../api'
+
+import { redirect } from 'next/navigation'
 
 export function Nav() {
+  const { data, isError } = useGetMeQuery()
+  const [doLogout] = useLogoutMutation()
+
+  if (isError) return redirect('/login')
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -22,11 +30,8 @@ export function Nav() {
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-            <IconButton
-              size="large"
-              aria-label="show 4 new mails"
-              color="inherit"
-            >
+            <Box sx={{ alignContent: 'center' }}>{data?.email}</Box>
+            <IconButton size="large" color="inherit" onClick={() => doLogout()}>
               <LogoutIcon />
             </IconButton>
           </Box>

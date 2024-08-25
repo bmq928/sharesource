@@ -13,9 +13,12 @@ import type {
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { transformErrorResponse } from './utils'
 
+export enum TaskTagTypes {
+  Task = 'tasks',
+}
 export const tasksApi = createApi({
   reducerPath: 'taskApi',
-  tagTypes: ['tasks'],
+  tagTypes: [TaskTagTypes.Task],
   baseQuery: fetchBaseQuery({
     baseUrl: process.env['NEXT_PUBLIC_API_PATH'],
     credentials: 'same-origin',
@@ -28,7 +31,7 @@ export const tasksApi = createApi({
           method: 'GET',
           params: query,
         }),
-        providesTags: ['tasks'],
+        providesTags: [TaskTagTypes.Task],
         transformErrorResponse,
       }
     ),
@@ -40,7 +43,7 @@ export const tasksApi = createApi({
         body,
       }),
       transformErrorResponse,
-      invalidatesTags: ['tasks'],
+      invalidatesTags: [TaskTagTypes.Task],
     }),
 
     updateTask: builder.mutation<TaskResponse, UpdateTaskDto & IdDto>({
@@ -50,7 +53,7 @@ export const tasksApi = createApi({
         body,
       }),
       transformErrorResponse,
-      invalidatesTags: ['tasks'],
+      invalidatesTags: [TaskTagTypes.Task],
     }),
 
     deleteTask: builder.mutation<unknown, IdDto>({
@@ -59,7 +62,7 @@ export const tasksApi = createApi({
         method: 'DELETE',
       }),
       transformErrorResponse,
-      invalidatesTags: ['tasks'],
+      invalidatesTags: [TaskTagTypes.Task],
     }),
   }),
 })

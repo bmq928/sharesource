@@ -1,7 +1,7 @@
 'use client'
 
 import type { LoginDto } from '@libs/be-core'
-import { useLoginMutation } from '@libs/fe-core'
+import { useGetMeQuery, useLoginMutation } from '@libs/fe-core'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import Alert from '@mui/material/Alert'
 import Avatar from '@mui/material/Avatar'
@@ -14,10 +14,12 @@ import Snackbar from '@mui/material/Snackbar'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 export default function Page() {
+  const { isSuccess: isLoggedIn } = useGetMeQuery()
   const [doLogin, { isLoading, isError: isLoginError, error: loginErr }] =
     useLoginMutation()
   const {
@@ -30,6 +32,8 @@ export default function Page() {
   useEffect(() => {
     isLoginError && setIsToastErr(true)
   }, [loginErr, isLoginError])
+
+  if (isLoggedIn) return redirect('/home')
 
   return (
     <Container component="main" maxWidth="xs">

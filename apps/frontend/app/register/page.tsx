@@ -1,7 +1,7 @@
 'use client'
 
 import type { RegisterDto } from '@libs/be-core'
-import { useRegisterMutation } from '@libs/fe-core'
+import { useGetMeQuery, useRegisterMutation } from '@libs/fe-core'
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import Alert from '@mui/material/Alert'
 import Avatar from '@mui/material/Avatar'
@@ -14,10 +14,12 @@ import Snackbar from '@mui/material/Snackbar'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 export default function Page() {
+  const { isSuccess: isLoggedIn } = useGetMeQuery()
   const [
     doRegister,
     { isLoading, isError: isRegisterError, error: registerErr },
@@ -32,6 +34,8 @@ export default function Page() {
   useEffect(() => {
     isRegisterError && setIsToastErr(true)
   }, [registerErr, isRegisterError])
+
+  if (isLoggedIn) return redirect('/home')
 
   return (
     <Container component="main" maxWidth="xs">
@@ -122,7 +126,7 @@ export default function Page() {
           </Button>
           <Grid container>
             <Grid item>
-              <Link href="/login">{'have an account? Log In'}</Link>
+              <Link href="/login">Already have an account? Log In</Link>
             </Grid>
           </Grid>
         </Box>
