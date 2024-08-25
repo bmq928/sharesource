@@ -74,6 +74,7 @@ These tools should be installed:
    ```
 2. Run backend
    ```sh
+   docker compose up -d
    npx nx serve backend
    ```
    <p align="right">(<a href="#readme-top">back to top</a>)</p>
