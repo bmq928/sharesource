@@ -2,8 +2,10 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Inject,
   Post,
+  Put,
   Res,
   UseGuards,
 } from '@nestjs/common'
@@ -55,6 +57,12 @@ export class UsersController {
     const data = await this.usersService.register(dto)
     this.setCookie(res, COOKIE_ACCESS_TOKEN, data.accessToken)
     return plainToInstance(UserAuthTokenResponse, data)
+  }
+
+  @HttpCode(204)
+  @Put('/logout')
+  logout(@Res({ passthrough: true }) res: CookieResponse): void {
+    this.setCookie(res, COOKIE_ACCESS_TOKEN, '')
   }
 
   private setCookie(res: CookieResponse, key: string, val: string): void {

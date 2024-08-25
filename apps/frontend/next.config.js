@@ -2,7 +2,7 @@
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { composePlugins, withNx } = require('@nx/next')
-const API_PATH = process.env['API_PATH']
+const API_PATH = process.env['NEXT_PUBLIC_API_PATH']
 const BACKEND_URL = process.env['BACKEND_URL']
 
 /**

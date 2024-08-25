@@ -12,11 +12,15 @@ export abstract class EntityPostgres {
   id: string
 
   @Index()
-  @CreateDateColumn({ type: 'timestamptz', default: 'NOW()', update: false })
+  @CreateDateColumn({
+    type: 'timestamptz',
+    default: () => 'NOW()',
+    update: false,
+  })
   createdAt: Date
 
   @Index()
-  @UpdateDateColumn({ type: 'timestamptz', default: 'NOW()' })
+  @UpdateDateColumn({ type: 'timestamptz', default: () => 'NOW()' })
   updatedAt: Date
 
   @BeforeInsert()

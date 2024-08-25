@@ -41,6 +41,7 @@ export class AppModule {
         TypeOrmModule.forRootAsync({
           useFactory: (configService: ConfigService) => ({
             ...configService.get<DataSourceOptions>(TYPEORM_CONFIG_TOKEN),
+            logging: true,
             migrations,
             entities,
           }),

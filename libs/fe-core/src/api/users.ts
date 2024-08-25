@@ -1,4 +1,5 @@
 'use client'
+
 import type {
   LoginDto,
   RegisterDto,
@@ -46,7 +47,21 @@ export const usersApi = createApi({
       transformErrorResponse,
       invalidatesTags: ['me'],
     }),
+
+    logout: builder.mutation<void, void>({
+      query: () => ({
+        url: '/v1/users/logout',
+        method: 'PUT',
+      }),
+      transformErrorResponse,
+      invalidatesTags: ['me'],
+    }),
   }),
 })
 
-export const { useGetMeQuery, useLoginMutation, useRegisterMutation } = usersApi
+export const {
+  useGetMeQuery,
+  useLoginMutation,
+  useRegisterMutation,
+  useLogoutMutation,
+} = usersApi

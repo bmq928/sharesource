@@ -2,6 +2,7 @@
 
 import type { CreateTaskDto, UpdateTaskDto } from '@libs/be-core'
 import {
+  Nav,
   useCreateTaskMutation,
   useDeleteTaskMutation,
   useListTasksQuery,
@@ -36,8 +37,8 @@ export default function Page() {
     () =>
       creating
         ? [
-            ...(data?.data ?? []).map((row) => ({ ...row, new: false })),
             { id: '', name: '', description: '', status: null, new: true },
+            ...(data?.data ?? []).map((row) => ({ ...row, new: false })),
           ]
         : (data?.data ?? []).map((row) => ({ ...row, new: false })),
     [creating, data]
@@ -50,6 +51,7 @@ export default function Page() {
 
   return (
     <>
+      <Nav />
       <Button onClick={() => setCreating(true)}>New</Button>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
