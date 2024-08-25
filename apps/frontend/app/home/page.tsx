@@ -8,7 +8,9 @@ import {
   useListTasksQuery,
   useUpdateTaskMutation,
 } from '@libs/fe-core'
+import AddIcon from '@mui/icons-material/Add'
 import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -32,7 +34,7 @@ export default function Page() {
     control,
     formState: { isSubmitted },
     reset: formReset,
-  } = useForm<CreateTaskDto | UpdateTaskDto>()
+  } = useForm<(CreateTaskDto | UpdateTaskDto) & { status?: boolean }>()
   const rows = useMemo(
     () =>
       creating
@@ -52,14 +54,16 @@ export default function Page() {
   return (
     <>
       <Nav />
-      <Button onClick={() => setCreating(true)}>New</Button>
+      <Button onClick={() => setCreating(true)} startIcon={<AddIcon />}>
+        New
+      </Button>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
               <TableCell>Description</TableCell>
-              <TableCell>Status</TableCell>
+              <TableCell>Completed</TableCell>
               <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>
@@ -112,24 +116,17 @@ export default function Page() {
                   )}
                 </TableCell>
                 <TableCell>
-                  {isEditingRow(row) ? (
-                    <Controller
-                      name="status"
-                      control={control}
-                      defaultValue={(row.status || 'pending') as any}
-                      render={({ field }) => (
-                        <TextField
-                          size="small"
-                          margin="normal"
-                          fullWidth
-                          autoFocus
-                          {...field}
-                        />
-                      )}
-                    />
-                  ) : (
-                    row.status
-                  )}
+                  <Controller
+                    name="status"
+                    control={control}
+                    render={({ field }) => (
+                      <Checkbox
+                        defaultChecked={row.status === 'completed'}
+                        disabled={!isEditingRow(row)}
+                        {...field}
+                      />
+                    )}
+                  />
                 </TableCell>
                 <TableCell>
                   {(row.new || updatingRowId === row.id) && (
@@ -138,14 +135,22 @@ export default function Page() {
                         row.new
                           ? (val) =>
                               doCreateTask({
+                                ...val,
                                 name: val.name ?? '',
                                 description: val.description ?? '',
+                                status: val.status
+                                  ? 'completed'
+                                  : ('pending' as any),
                               })
                           : updatingRowId === row.id
                           ? (val) =>
-                              doUpdateTask({ id: row.id, ...val }).then(() =>
-                                setUpdatingRowId('')
-                              )
+                              doUpdateTask({
+                                ...val,
+                                id: row.id,
+                                status: val.status
+                                  ? 'completed'
+                                  : ('pending' as any),
+                              }).then(() => setUpdatingRowId(''))
                           : () => null
                       )}
                     >

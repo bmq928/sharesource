@@ -6,12 +6,13 @@ import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
-import { useGetMeQuery, useLogoutMutation } from '../api'
+import { useGetMeQuery, useGetWeatherQuery, useLogoutMutation } from '../api'
 
 import { redirect } from 'next/navigation'
 
 export function Nav() {
-  const { data, isError } = useGetMeQuery()
+  const { data: weather } = useGetWeatherQuery()
+  const { data: me, isError } = useGetMeQuery()
   const [doLogout] = useLogoutMutation()
 
   if (isError) return redirect('/login')
@@ -30,7 +31,10 @@ export function Nav() {
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-            <Box sx={{ alignContent: 'center' }}>{data?.email}</Box>
+            <Box
+              sx={{ alignContent: 'center', marginRight: 1 }}
+            >{`${weather?.temp}${weather?.unit}`}</Box>
+            <Box sx={{ alignContent: 'center' }}>{me?.email}</Box>
             <IconButton size="large" color="inherit" onClick={() => doLogout()}>
               <LogoutIcon />
             </IconButton>

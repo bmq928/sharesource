@@ -16,9 +16,12 @@ import {
   TYPEORM_CONFIG_TOKEN,
   typeormConfig,
   typeormConfigSchema,
+  weatherConfig,
+  weatherConfigSchema,
 } from './config'
 import { TasksModule } from './tasks'
 import { UsersModule } from './users'
+import { WeatherModule } from './weather/weather.module'
 
 export class AppModule {
   static register({
@@ -30,13 +33,20 @@ export class AppModule {
       imports: [
         ConfigModule.forRoot({
           isGlobal: true,
-          load: [baseConfig, typeormConfig, jwtConfig, pbkdf2Config],
+          load: [
+            baseConfig,
+            typeormConfig,
+            jwtConfig,
+            pbkdf2Config,
+            weatherConfig,
+          ],
           validationSchema: joi
             .object()
             .concat(baseConfigSchema)
             .concat(typeormConfigSchema)
             .concat(jwtConfigSchema)
-            .concat(pbkdf2ConfigSchema),
+            .concat(pbkdf2ConfigSchema)
+            .concat(weatherConfigSchema),
         }),
         TypeOrmModule.forRootAsync({
           useFactory: (configService: ConfigService) => ({
@@ -58,6 +68,7 @@ export class AppModule {
         }),
         UsersModule,
         TasksModule,
+        WeatherModule,
       ],
     }
   }

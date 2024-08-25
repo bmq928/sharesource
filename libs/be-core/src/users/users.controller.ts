@@ -10,7 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common'
 import { ConfigType } from '@nestjs/config'
-import { ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { plainToInstance } from 'class-transformer'
 import { AuthGuard, AuthUserId, COOKIE_ACCESS_TOKEN } from '../common'
 import { baseConfig } from '../config'
@@ -23,6 +23,7 @@ type CookieResponse = {
   setCookie?: (key: string, val: string, opts: Record<string, unknown>) => void // fastify
 }
 @ApiTags('users')
+@ApiBearerAuth()
 @Controller('users')
 export class UsersController {
   constructor(

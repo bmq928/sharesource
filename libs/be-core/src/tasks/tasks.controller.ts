@@ -10,7 +10,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common'
-import { ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 import { plainToInstance } from 'class-transformer'
 import { AuthGuard, AuthUserId, IdDto, PaginatedQueryDto } from '../common'
 import { CreateTaskDto } from './dto'
@@ -20,6 +20,7 @@ import { TasksService } from './tasks.service'
 
 @UseGuards(AuthGuard)
 @ApiTags('tasks')
+@ApiBearerAuth()
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
