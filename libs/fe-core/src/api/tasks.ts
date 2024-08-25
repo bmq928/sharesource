@@ -1,4 +1,5 @@
 'use client'
+
 import type {
   CreateTaskDto,
   IdDto,
@@ -44,7 +45,7 @@ export const tasksApi = createApi({
 
     updateTask: builder.mutation<TaskResponse, UpdateTaskDto & IdDto>({
       query: ({ id, ...body }) => ({
-        url: '/v1/tasks',
+        url: `/v1/tasks/${id}`,
         method: 'PUT',
         body,
       }),

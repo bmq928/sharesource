@@ -16,31 +16,37 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 export default function Page() {
-  const { data } = useListTasksQuery({})
-  const [doCreateTask, { error: createTaskErr }] = useCreateTaskMutation()
-  const [doUpdateTask, { error: updateTaskErr }] = useUpdateTaskMutation()
-  const [doDeleteTask, { error: delTaskErr }] = useDeleteTaskMutation()
+  const { data } = useListTasksQuery({ sortBy: 'createdAt' })
+  const [doCreateTask] = useCreateTaskMutation()
+  const [doUpdateTask] = useUpdateTaskMutation()
+  const [doDeleteTask] = useDeleteTaskMutation()
   const [creating, setCreating] = useState(false)
+  const [updatingRowId, setUpdatingRowId] = useState('')
   const {
     handleSubmit,
     control,
-    formState: { errors: formErr },
+    formState: { isSubmitted },
+    reset: formReset,
   } = useForm<CreateTaskDto | UpdateTaskDto>()
-
   const rows = useMemo(
     () =>
       creating
         ? [
-            ...(data?.data ?? []).map((row) => ({ ...row, editable: false })),
-            { id: '', name: '', description: '', status: '', editable: true },
+            ...(data?.data ?? []).map((row) => ({ ...row, new: false })),
+            { id: '', name: '', description: '', status: null, new: true },
           ]
-        : (data?.data ?? []).map((row) => ({ ...row, editable: false })),
+        : (data?.data ?? []).map((row) => ({ ...row, new: false })),
     [creating, data]
   )
+  const isEditingRow = (row: any) => row.id === updatingRowId || row.new
+
+  useEffect(() => {
+    formReset()
+  }, [isSubmitted, formReset])
 
   return (
     <>
@@ -62,10 +68,10 @@ export default function Page() {
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
               >
                 <TableCell component="th" scope="row">
-                  {row.editable ? (
+                  {isEditingRow(row) ? (
                     <Controller
                       name="name"
-                      defaultValue=""
+                      defaultValue={row.name}
                       control={control}
                       render={({ field }) => (
                         <TextField
@@ -83,11 +89,11 @@ export default function Page() {
                   )}
                 </TableCell>
                 <TableCell>
-                  {row.editable ? (
+                  {isEditingRow(row) ? (
                     <Controller
                       name="description"
-                      defaultValue=""
                       control={control}
+                      defaultValue={row.description}
                       render={({ field }) => (
                         <TextField
                           size="small"
@@ -104,17 +110,16 @@ export default function Page() {
                   )}
                 </TableCell>
                 <TableCell>
-                  {row.editable ? (
+                  {isEditingRow(row) ? (
                     <Controller
                       name="status"
-                      defaultValue={'pending' as any}
                       control={control}
+                      defaultValue={(row.status || 'pending') as any}
                       render={({ field }) => (
                         <TextField
                           size="small"
                           margin="normal"
                           fullWidth
-                          autoComplete={row.status}
                           autoFocus
                           {...field}
                         />
@@ -125,16 +130,51 @@ export default function Page() {
                   )}
                 </TableCell>
                 <TableCell>
-                  <Button
-                    onClick={handleSubmit(
-                      (creating ? doCreateTask : doUpdateTask) as any
-                    )}
-                  >
-                    Save
-                  </Button>
-                  <Button onClick={() => doDeleteTask({ id: row.id })}>
-                    Delete
-                  </Button>
+                  {(row.new || updatingRowId === row.id) && (
+                    <Button
+                      onClick={handleSubmit(
+                        row.new
+                          ? (val) =>
+                              doCreateTask({
+                                name: val.name ?? '',
+                                description: val.description ?? '',
+                              })
+                          : updatingRowId === row.id
+                          ? (val) =>
+                              doUpdateTask({ id: row.id, ...val }).then(() =>
+                                setUpdatingRowId('')
+                              )
+                          : () => null
+                      )}
+                    >
+                      Save
+                    </Button>
+                  )}
+                  {isEditingRow(row) && (
+                    <Button
+                      onClick={() => {
+                        if (row.new) setCreating(false)
+                        if (row.id === updatingRowId) setUpdatingRowId('')
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  )}
+                  {!row.new && updatingRowId !== row.id && (
+                    <>
+                      <Button
+                        onClick={() => {
+                          setUpdatingRowId(row.id)
+                          formReset()
+                        }}
+                      >
+                        Update
+                      </Button>
+                      <Button onClick={() => doDeleteTask({ id: row.id })}>
+                        Delete
+                      </Button>
+                    </>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
